@@ -1,0 +1,28 @@
+{
+  "name": "christianblos/markdown2html",
+  "description": "Converts markdown files to static html pages",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Christian Blos",
+      "email": "christian.blos@gmx.de"
+    }
+  ],
+  "bin": [
+    "markdown2html"
+  ],
+  "require": {
+    "php": "~7.3 | ^8.0",
+    "erusev/parsedown-extra": "^0.8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Markdown2Html\\": "src/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.x-dev"
+    }
+  }
+}
