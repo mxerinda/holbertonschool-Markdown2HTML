@@ -1,74 +1,37 @@
 #!/usr/bin/python3
 """
-Converts Markdown to HTML
+script that takes 2 arguments
 """
-
 import sys
-import os
-import markdown
+from os import path
 import re
-import hashlib
 
-def convert_markdown_to_html(markdown_file, html_file):
-    """
-    Converts Markdown to HTML
-    """
-    try:
-        with open(markdown_file, 'r') as md_file:
-            md_content = md_file.read()
-            html_content = parse_markdown(md_content)
-            with open(html_file, 'w') as html_out:
-                html_out.write(html_content)
-    except FileNotFoundError:
-        print(f"Missing {markdown_file}", file=sys.stderr)
-        sys.exit(1)
-
-def parse_markdown(markdown_content):
-    """
-    Parses Markdown content to HTML
-    """
-    # Parse Headings
-    headings_pattern = re.compile(r'^(\#{1,6})\s(.+)$', re.MULTILINE)
-    markdown_content = headings_pattern.sub(r'<\1>\2</\1>', markdown_content)
-
-    # Parse Unordered Listing
-    unordered_list_pattern = re.compile(r'^\s*\-\s(.+)$', re.MULTILINE)
-    markdown_content = unordered_list_pattern.sub(r'<ul>\n<li>\1</li>\n</ul>', markdown_content)
-
-    # Parse Ordered Listing
-    ordered_list_pattern = re.compile(r'^\s*\*\s(.+)$', re.MULTILINE)
-    markdown_content = ordered_list_pattern.sub(r'<ol>\n<li>\1</li>\n</ol>', markdown_content)
-
-    # Parse Simple Text
-    text_pattern = re.compile(r'^\s*([^#-\*\[\(]+)\s*$', re.MULTILINE)
-    markdown_content = text_pattern.sub(r'<p>\1</p>', markdown_content)
-    markdown_content = re.sub(r'\n\n', '<br/>\n', markdown_content)
-
-    # Parse Bold and Emphasis Text
-    bold_pattern = re.compile(r'\*\*(.+?)\*\*', re.MULTILINE)
-    markdown_content = bold_pattern.sub(r'<b>\1</b>', markdown_content)
-    emphasis_pattern = re.compile(r'__(.+?)__', re.MULTILINE)
-    markdown_content = emphasis_pattern.sub(r'<em>\1</em>', markdown_content)
-
-    # Parse Special Syntax
-    special_syntax_pattern = re.compile(r'\[\[(.+?)\]\]', re.MULTILINE)
-    markdown_content = special_syntax_pattern.sub(lambda match: hashlib.md5(match.group(1).encode()).hexdigest(), markdown_content)
-    special_syntax_pattern = re.compile(r'\(\((.+?)\)\)', re.MULTILINE)
-    markdown_content = special_syntax_pattern.sub(lambda match: match.group(1).replace('c', ''), markdown_content)
-
-    return markdown_content
 
 if __name__ == "__main__":
+    """
+    a function that turns markdown to html 
+    """
     if len(sys.argv) < 3:
-        print("Usage: ./markdown2html.py <MarkdownFile> <OutputFile>", file=sys.stderr)
+        sys.stderr.write("Usage: ./markdown2html.py README.md README.html\n")
         sys.exit(1)
-
-    markdown_file = sys.argv[1]
-    html_file = sys.argv[2]
-
-    if not os.path.exists(markdown_file):
-        print(f"Missing {markdown_file}", file=sys.stderr)
+    elif not path.exists(sys.argv[1]) or not sys.argv[1].endswith('.md'):
+        sys.stderr.write("Missing {}\n".format(sys.argv[1]))
         sys.exit(1)
+    else:
+        html = []
+        with open(sys.argv[1], 'r') as file:
+            text = file.readlines()
+            text[-1] = text[-1].replace('\n', '')
 
-    convert_markdown_to_html(markdown_file, html_file)
-    sys.exit(0)
+        with open(sys.argv[2], 'w') as file:
+            for string in text:
+                # convert (#) to html headings (h1 - h6)
+                count = string.count('#')
+                if count != 0:
+                    html_replace = string.replace('#' * count + ' ', '')
+                    html_replace = html_replace.replace('\n', '')
+                    html_line = "<h{}>{}</h{}>\n".format(
+                        count, html_replace, count)
+                    html.append(html_line)
+            file.writelines(html)
+            sys.exit(0)
